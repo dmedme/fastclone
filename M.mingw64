@@ -1,0 +1,52 @@
+# M.linux
+# $Name$ $Id$
+#	SCCS ID: %W% %G%
+INCS=-I. -I../e2common
+#
+# Copyright (c) E3 Systems 1993. All Rights Reserved.
+# @(#) $Name$ $Id$
+#
+# MINGW
+#
+CFLAGS=-DPOSIX -O4 -I. -DE2 $(INCS) -DAT -DNT4 -DMINGW32 -DPATH_AT -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -s
+#CFLAGS=-DPOSIX -g2 -I. -DE2 $(INCS) -DAT -DNT4 -DMINGW32 -DPATH_AT -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
+
+CC= /opt/windows_32/bin/gcc
+VCC= /opt/windows_32/bin/gcc
+XPGCC= /opt/windows_32/bin/gcc
+#
+# Do not use libmingw32 because we have no idea what is in it
+#
+CLIBS=../e2common/comlib.a -L/opt/windows_32/lib -lmsvcrt
+RANLIB = /opt/windows_32/bin/ranlib
+AR = /opt/windows_32/bin/ar
+LD= /opt/windows_32/bin/gcc
+# ************************************************************************
+# This is the 'go faster' version of script generation and data handling
+# ************************************************************************
+.SUFFIXES: .c .o .y
+.c.o:
+	$(CC) $(CFLAGS) -c $<
+.y.c:
+	bison -d $<
+	mv $*.tab.c $@
+	mv $*.tab.h cscalc.h
+.y.o:
+	bison -d $<
+	mv $*.tab.c $*.c
+	mv $*.tab.h cscalc.h
+	$(CC) $(CFLAGS) -c $*.c
+# ************************************************************************
+#CLIBS=../e2common/comlib.a -Lc:/mingw/lib -lmingw32 -lws2_32 -ladvapi32 -lgdi32 -luser32 -lshell32 -lkernel32 -lmsvcrt -lntdll
+##########################################################################
+# The executables that are built
+##########################################################################
+# Makefile for flat file utilities
+all: fastclone wbrowse
+	@echo All done
+clean:
+	rm -f *.o
+fastclone: fastclone.o e2dfflib.o 
+	$(CC) $(CFLAGS) -o fastclone fastclone.o e2dfflib.o $(CLIBS)
+wbrowse: wbrowse.o e2dfflib.o 
+	$(CC) $(CFLAGS) -o wbrowse wbrowse.o e2dfflib.o $(CLIBS)

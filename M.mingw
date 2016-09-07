@@ -1,0 +1,46 @@
+# M.linux
+# $Name$ $Id$
+#	SCCS ID: %W% %G%
+INCS=-I. -I../e2common
+CFLAGS=-DPOSIX -O4 $(INCS) -DNT4 -DMINGW32 -DPATH_AT -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DNOBPF_H -DNOTCP_H -DNOETHER_H -D_WIN32 -DWIN32 -DNOIP_H -DNOIP_ICMP_H -s
+# ************************************************************************
+# This is the 'go faster' version of script generation and data handling
+# ************************************************************************
+.SUFFIXES: .c .o .y
+.c.o:
+	$(CC) $(CFLAGS) -c $<
+.y.c:
+	bison -d $<
+	mv $*.tab.c $@
+	mv $*.tab.h cscalc.h
+.y.o:
+	bison -d $<
+	mv $*.tab.c $*.c
+	mv $*.tab.h cscalc.h
+	$(CC) $(CFLAGS) -c $*.c
+# ************************************************************************
+# Usual suspects
+#
+CC= c:/mingw/bin/gcc
+RC = c:/lcc/bin/lrc
+VCC= c:/mingw/bin/gcc
+XPGCC= c:/mingw/bin/gcc
+RANLIB = c:/mingw/bin/ranlib
+AR = c:/mingw/bin/ar
+LD= c:/mingw/bin/gcc
+YACC=bison
+LEX=flex -l
+# ************************************************************************
+CLIBS=../e2common/comlib.a -Lc:/mingw/lib -lmingw32 -lws2_32 -ladvapi32 -lgdi32 -luser32 -lshell32 -lkernel32 -lmsvcrt -lntdll
+##########################################################################
+# The executables that are built
+##########################################################################
+# Makefile for flat file utilities
+all: fastclone wbrowse
+	@echo All done
+clean:
+	rm -f *.o
+fastclone: fastclone.o e2dfflib.o 
+	$(CC) $(CFLAGS) -o fastclone fastclone.o e2dfflib.o $(CLIBS)
+wbrowse: wbrowse.o e2dfflib.o 
+	$(CC) $(CFLAGS) -o wbrowse wbrowse.o e2dfflib.o $(CLIBS)

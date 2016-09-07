@@ -1,0 +1,54 @@
+# M.linux
+# $Name$ $Id$
+#	SCCS ID: %W% %G%
+##########################################################################
+# The compilation stuff
+##########################################################################
+INCS=-I. -I../e2common
+COMMON_CFLAGS=-DPOSIX -O4 -s -DLINUX $(INCS) -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
+#COMMON_CFLAGS=-DPOSIX -O4 -DLINUX $(INCS) -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
+# ************************************************************************
+.SUFFIXES: .c .o .y .s
+.c.o:
+	$(CC) $(CFLAGS) -c $<
+.c.s:
+	$(CC) $(CFLAGS) -S $<
+.y.c:
+	bison -d $<
+	mv $*.tab.c $@
+	mv $*.tab.h $*.h
+.y.o:
+	bison -d $<
+	mv $*.tab.c $*.c
+	mv $*.tab.h $*.h
+	$(CC) $(CFLAGS) -c $*.c
+# ************************************************************************
+CC= gcc
+RC = 
+VCC= gcc
+XPGCC= gcc
+COMMON_LIBS=../e2common/comlib.a -lpthread -lm -lc
+LIBS=$(COMMON_LIBS)
+CFLAGS=$(COMMON_CFLAGS)
+#
+# Usual suspects
+#
+RANLIB = ranlib
+AR = ar
+LD= gcc
+#YACC=byacc
+YACC=bison
+LEX=flex -l
+TARGET=fastclone wbrowse
+##########################################################################
+# The executables that are built
+##########################################################################
+# Makefile for flat file utilities
+all: $(TARGET)
+	@echo All done
+clean:
+	rm -f *.o
+fastclone: fastclone.o e2dfflib.o 
+	$(CC) $(CFLAGS) -o fastclone fastclone.o e2dfflib.o $(LIBS)
+wbrowse: wbrowse.o e2dfflib.o 
+	$(CC) $(CFLAGS) -o wbrowse wbrowse.o e2dfflib.o $(LIBS)
